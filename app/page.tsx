@@ -57,19 +57,9 @@ export default function HomePage() {
   };
 
   /**
-   * 视频采集完成
-   */
-  const handleVideoCaptured = useCallback((blob: Blob) => {
-    setVideoBlob(blob);
-    dispatch(setVideoState({ isRecording: false, isProcessing: true }));
-    setStep('analyze');
-    startAnalysis(blob);
-  }, [dispatch]);
-
-  /**
    * 开始AI分析
    */
-  const startAnalysis = async (blob: Blob) => {
+  const startAnalysis = useCallback(async (blob: Blob) => {
     try {
       dispatch(setAIState({ isAnalyzing: true, modelLoaded: false }));
 
@@ -110,7 +100,17 @@ export default function HomePage() {
       console.error('分析失败:', error);
       dispatch(setAIState({ isAnalyzing: false }));
     }
-  };
+  }, [dispatch, currentReport]);
+
+  /**
+   * 视频采集完成
+   */
+  const handleVideoCaptured = useCallback((blob: Blob) => {
+    setVideoBlob(blob);
+    dispatch(setVideoState({ isRecording: false, isProcessing: true }));
+    setStep('analyze');
+    startAnalysis(blob);
+  }, [dispatch, startAnalysis]);
 
   /**
    * 下载报告

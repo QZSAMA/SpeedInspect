@@ -35,6 +35,11 @@ export class VideoCapture {
       stabilization = true
     } = options;
 
+    // 检查浏览器支持
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error('浏览器不支持媒体设备API');
+    }
+
     const constraints: MediaStreamConstraints = {
       video: {
         width: { ideal: width },
@@ -45,17 +50,53 @@ export class VideoCapture {
       audio: false
     };
 
-    this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+    try {
+      this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (err) {
+      if (err instanceof Error) {
+        switch (err.name) {
+          case 'NotAllowedError':
+            throw new Error('摄像头权限被拒绝');
+          case 'NotFoundError':
+            throw new Error('未找到摄像头设备');
+          case 'NotReadableError':
+            throw new Error('摄像头被其他应用占用');
+          case 'OverconstrainedError':
+            throw new Error('摄像头参数设置不合理');
+          default:
+            throw new Error(`获取摄像头失败: ${err.message}`);
+        }
+      }
+      throw new Error('获取摄像头失败');
+    }
 
     this.videoElement = document.createElement('video');
     this.videoElement.srcObject = this.mediaStream;
     this.videoElement.setAttribute('playsinline', 'true');
-    this.videoElement.autoplay = true;
+    this.videoElement.setAttribute('autoplay', 'true');
+    this.videoElement.setAttribute('muted', 'true');
+    this.videoElement.setAttribute('playsinline', 'true');
 
-    await new Promise((resolve) => {
-      if (this.videoElement) {
-        this.videoElement.onloadedmetadata = () => resolve(true);
+    // 等待视频元数据加载
+    await new Promise((resolve, reject) => {
+      if (!this.videoElement) {
+        reject(new Error('视频元素未创建'));
+        return;
       }
+
+      const timeoutId = setTimeout(() => {
+        reject(new Error('视频元数据加载超时'));
+      }, 5000);
+
+      this.videoElement.onloadedmetadata = () => {
+        clearTimeout(timeoutId);
+        resolve(true);
+      };
+
+      this.videoElement.onerror = () => {
+        clearTimeout(timeoutId);
+        reject(new Error('视频元素加载失败'));
+      };
     });
 
     this.canvasElement = document.createElement('canvas');

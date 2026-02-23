@@ -30,27 +30,66 @@ export function VideoCapture({ onVideoCaptured, disabled = false }: VideoCapture
   const startCamera = async () => {
     try {
       setError(null);
+      
+      // 检查是否在安全环境中（HTTPS或localhost）
+      const isSecureContext = window.isSecureContext;
+      const isLocalhost = window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1';
+      
+      // 检查浏览器是否支持媒体设备API
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (!isSecureContext && !isLocalhost) {
+          throw new Error('摄像头功能需要在HTTPS环境下使用。请确保您通过HTTPS访问，或在localhost环境下测试。');
+        }
+        throw new Error('浏览器不支持摄像头功能，请使用Chrome、Firefox、Safari或Edge等现代浏览器。');
+      }
+      
       const videoCapture = new VideoCaptureClass();
       videoCaptureRef.current = videoCapture;
+      
+      // 尝试初始化摄像头
       const videoElement = await videoCapture.initialize({
         width: 1280,
         height: 720,
         facingMode: 'environment'
       });
 
-      if (videoRef.current && containerRef.current) {
+      if (containerRef.current) {
         videoElement.style.width = '100%';
         videoElement.style.height = '100%';
         videoElement.style.objectFit = 'cover';
         videoElement.style.borderRadius = '12px';
+        videoElement.style.display = 'block';
         containerRef.current.appendChild(videoElement);
         videoRef.current = videoElement;
+        
+        // 确保视频自动播放
+        videoElement.play().catch(playErr => {
+          console.error('视频播放失败:', playErr);
+          setError('视频播放失败，请检查浏览器设置');
+        });
       }
 
       setIsCameraActive(true);
     } catch (err) {
       console.error('启动摄像头失败:', err);
-      setError('无法访问摄像头，请确保已授予相机权限');
+      if (err instanceof Error) {
+        if (err.name === 'NotAllowedError') {
+          setError('摄像头权限被拒绝。请点击浏览器地址栏旁的锁图标，允许摄像头访问权限，然后刷新页面重试。');
+        } else if (err.name === 'NotFoundError') {
+          setError('未找到摄像头设备。请确保您的设备已连接摄像头，并且未被其他应用占用。');
+        } else if (err.name === 'NotReadableError') {
+          setError('摄像头被其他应用占用。请关闭其他正在使用摄像头的应用程序，然后重试。');
+        } else if (err.name === 'OverconstrainedError') {
+          setError('摄像头参数设置不合理。请尝试使用较低的分辨率。');
+        } else if (err.message.includes('HTTPS')) {
+          setError(err.message);
+        } else {
+          setError(err.message || '无法访问摄像头，请确保已授予相机权限');
+        }
+      } else {
+        setError('无法访问摄像头，请确保已授予相机权限');
+      }
     }
   };
 
@@ -58,17 +97,28 @@ export function VideoCapture({ onVideoCaptured, disabled = false }: VideoCapture
    * 停止摄像头
    */
   const stopCamera = () => {
-    if (videoCaptureRef.current) {
-      videoCaptureRef.current.stopCamera();
-    }
-    if (containerRef.current && videoRef.current) {
-      containerRef.current.removeChild(videoRef.current);
-    }
-    setIsCameraActive(false);
-    setIsRecording(false);
-    setRecordingTime(0);
-    if (recordingIntervalRef.current) {
-      clearInterval(recordingIntervalRef.current);
+    try {
+      if (videoCaptureRef.current) {
+        videoCaptureRef.current.stopCamera();
+      }
+      if (containerRef.current && videoRef.current) {
+        try {
+          containerRef.current.removeChild(videoRef.current);
+        } catch (removeErr) {
+          console.error('移除视频元素失败:', removeErr);
+        }
+      }
+      setIsCameraActive(false);
+      setIsRecording(false);
+      setRecordingTime(0);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+        recordingIntervalRef.current = null;
+      }
+      setError(null);
+    } catch (err) {
+      console.error('停止摄像头失败:', err);
+      setError('停止摄像头时发生错误');
     }
   };
 
