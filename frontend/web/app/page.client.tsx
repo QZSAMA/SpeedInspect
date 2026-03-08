@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -35,7 +33,7 @@ import { clsx } from 'clsx';
  * 主页面组件
  * 房屋状况智能检查系统的核心界面
  */
-export default function HomePage() {
+export default function HomePageClient() {
   const dispatch = useDispatch<AppDispatch>();
   const { currentReport, videoState, aiState, selectedPropertyType } = useSelector(
     (state: RootState) => state.inspection

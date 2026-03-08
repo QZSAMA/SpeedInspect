@@ -61,7 +61,7 @@ export function VideoCapture({ onVideoCaptured, disabled = false }: VideoCapture
         videoElement.style.borderRadius = '12px';
         videoElement.style.display = 'block';
         containerRef.current.appendChild(videoElement);
-        videoRef.current = videoElement;
+        (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = videoElement;
         
         // 确保视频自动播放
         videoElement.play().catch(playErr => {
