@@ -1,0 +1,98 @@
+[build-system]
+requires = ["uv>=0.1.0"]
+build-backend = "uv.build"
+
+[project]
+name = "speedinspect-backend"
+version = "0.1.0"
+description = "SpeedInspect 房屋状态智能识别系统后端"
+authors = [
+  { name = "QZ", email = "KELVINCHAO1996@GMAIL.COM" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.104.0",
+  "uvicorn[standard]>=0.24.0",
+  "pydantic>=2.5.0",
+  "pydantic-settings>=2.1.0",
+  "python-jose[cryptography]>=3.3.0",
+  "passlib[bcrypt]>=1.7.4",
+  "asyncpg>=0.29.0",
+  "sqlalchemy[asyncio]>=2.0.23",
+  "alembic>=1.12.0",
+  "redis>=5.0.1",
+  "celery>=5.3.4",
+  "httpx>=0.25.2",
+  "python-multipart>=0.0.6",
+  "jinja2>=3.1.2",
+  "weasyprint>=59.0",
+  "pillow>=10.1.0",
+  "structlog>=23.2.0",
+  "pydantic-extra-types>=2.1.0",
+  "slowapi>=0.1.9",
+  "limits>=3.6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4.3",
+  "pytest-asyncio>=0.21.1",
+  "pytest-cov>=4.1.0",
+  "httpx>=0.25.2",
+  "ruff>=0.1.7",
+  "mypy>=1.7.1",
+  "ipython>=8.17.0",
+  "pre-commit>=3.6.0",
+  "testcontainers[postgresql,redis]>=3.7.0",
+]
+
+[tool.uv]
+python-version = "3.12"
+resolution-strategy = "highest"
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "I", "UP", "B", "A", "W", "C4", "SIM", "TID", "PYI", "PT"]
+ignore = [
+  "E501",  # 行长度由 formatter 处理
+  "E203",  # 格式化冲突
+  "W503",  # 格式化冲突
+]
+exclude = [
+  ".git",
+  "__pycache__",
+  "migrations",
+  ".venv",
+  "tests",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+indent-width = 4
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+exclude = [
+  "migrations",
+  ".venv",
+  "tests",
+]
+[[tool.mypy.overrides]]
+module = "alembic.*"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --cov=src --cov-report=term --cov-report=xml"
+python_files = ["test_*.py"]
+
+[tool.alembic]
+script_location = "migrations"
+sqlalchemy.url = "postgresql+asyncpg://postgres:postgres@localhost:5432/speedinspect"
