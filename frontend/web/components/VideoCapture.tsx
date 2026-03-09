@@ -31,15 +31,16 @@ export function VideoCapture({ onVideoCaptured, disabled = false }: VideoCapture
     try {
       setError(null);
       
-      // 检查是否在安全环境中（HTTPS或localhost）
+      // 检查是否在安全环境中（HTTPS、localhost或内网IP）
       const isSecureContext = window.isSecureContext;
       const isLocalhost = window.location.hostname === 'localhost' || 
                          window.location.hostname === '127.0.0.1';
+      const isPrivateIP = /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.|169\.254\.|fc00:|fe80:)/.test(window.location.hostname);
       
       // 检查浏览器是否支持媒体设备API
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        if (!isSecureContext && !isLocalhost) {
-          throw new Error('摄像头功能需要在HTTPS环境下使用。请确保您通过HTTPS访问，或在localhost环境下测试。');
+        if (!isSecureContext && !isLocalhost && !isPrivateIP) {
+          throw new Error('摄像头功能需要在HTTPS环境下使用。请确保您通过HTTPS访问，或在本地网络/localhost环境下测试。');
         }
         throw new Error('浏览器不支持摄像头功能，请使用Chrome、Firefox、Safari或Edge等现代浏览器。');
       }
@@ -83,7 +84,22 @@ export function VideoCapture({ onVideoCaptured, disabled = false }: VideoCapture
         } else if (err.name === 'OverconstrainedError') {
           setError('摄像头参数设置不合理。请尝试使用较低的分辨率。');
         } else if (err.message.includes('HTTPS')) {
-          setError(err.message);
+          // 自定义HTTPS错误提示，带解决方案
+          const errorMessage = `🔒 摄像头功能需要安全环境
+当前访问协议是HTTP，浏览器安全策略限制摄像头只能在HTTPS或本地环境下使用。
+
+✅ 最简单的解决方案：
+1. 本地开发直接用 localhost 访问（自动支持）
+2. 局域网测试用 127.0.0.1 代替IP访问
+3. 手机测试用 ngrok 工具做HTTPS隧道：
+   • 下载ngrok后执行：ngrok http 你的端口号
+   • 用ngrok生成的HTTPS地址访问
+
+⚡ 公网部署建议：
+- 免费证书：用Let's Encrypt申请免费HTTPS证书
+- 云服务商：阿里云/腾讯云都提供免费SSL证书
+- 一键部署：Vercel/Netlify等平台自动配置HTTPS`;
+          setError(errorMessage);
         } else {
           setError(err.message || '无法访问摄像头，请确保已授予相机权限');
         }
@@ -211,7 +227,9 @@ export function VideoCapture({ onVideoCaptured, disabled = false }: VideoCapture
       {/* 错误提示 */}
       {error && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {error}
+          <div className="whitespace-pre-line leading-relaxed">
+            {error}
+          </div>
         </div>
       )}
 
