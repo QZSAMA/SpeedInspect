@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     STORAGE_SECRET_KEY: Optional[SecretStr] = None
     STORAGE_BUCKET: str = "speedinspect"
     STORAGE_REGION: str = "us-east-1"
+    STORAGE_LOCAL_PATH: str = "uploads"
 
     # LLM配置
     LLM_PROVIDER: str = "tongyi"

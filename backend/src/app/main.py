@@ -11,6 +11,7 @@ from src.app.features.users.router import router as users_router
 from src.app.features.files.router import router as files_router
 from src.app.features.orders.router import router as orders_router
 from src.app.features.reports.router import router as reports_router
+from src.app.features.ai.router import router as ai_router
 from src.app.features.health.router import router as health_router
 
 
@@ -71,6 +72,7 @@ def create_app() -> FastAPI:
     app.include_router(files_router, prefix=f"{api_prefix}/files", tags=["files"])
     app.include_router(orders_router, prefix=f"{api_prefix}/orders", tags=["orders"])
     app.include_router(reports_router, prefix=f"{api_prefix}/reports", tags=["reports"])
+    app.include_router(ai_router, prefix=f"{api_prefix}/ai", tags=["ai"])
     
     # 根路径
     @app.get("/", tags=["root"])
