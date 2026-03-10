@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # CORS配置
-    CORS_ORIGINS: str = "http://localhost:3000"
+    CORS_ORIGINS: str | list[str] = "http://localhost:3000"
     CORS_ALLOW_CREDENTIALS: bool = True
 
     # 对象存储配置
