@@ -12,9 +12,8 @@ import { RootState, AppDispatch } from '@/store';
 import { VideoCapture } from '@/components/VideoCapture';
 import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { ProblemList } from '@/components/ProblemList';
-import { VideoCapture as VideoCaptureClass } from '@/lib/videoCapture';
-import { AIAnalyzer } from '@/lib/aiAnalyzer';
 import { ReportGenerator } from '@/lib/reportGenerator';
+import { filesAPI, aiAPI, reportsAPI } from '@/lib/apiClient';
 import { PropertyType, HouseProblem } from '@/types';
 import {
   Home,
@@ -25,7 +24,9 @@ import {
   Download,
   RefreshCcw,
   CheckCircle,
-  FileText
+  FileText,
+  Cloud,
+  AlertCircle
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -39,11 +40,12 @@ export default function HomePageClient() {
     (state: RootState) => state.inspection
   );
 
-  const [step, setStep] = useState<'welcome' | 'capture' | 'analyze' | 'results'>('welcome');
+  const [step, setStep] = useState<'welcome' | 'capture' | 'upload' | 'analyze' | 'results'>('welcome');
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisProgress, setAnalysisProgress] = useState(0);
-  const videoCaptureRef = useRef<VideoCaptureClass | null>(null);
-  const aiAnalyzerRef = useRef<AIAnalyzer | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [uploadedFileId, setUploadedFileId] = useState<string | null>(null);
 
   /**
    * 选择房屋类型
@@ -55,66 +57,98 @@ export default function HomePageClient() {
   };
 
   /**
-   * 开始AI分析
+   * 上传视频到后端
    */
-  const startAnalysis = useCallback(async (blob: Blob) => {
+  const uploadVideo = useCallback(async (blob: Blob) => {
     try {
-      dispatch(setAIState({ isAnalyzing: true, modelLoaded: false }));
+      setError(null);
+      dispatch(setVideoState({ isRecording: false, isProcessing: true, progress: 0 }));
+      setStep('upload');
 
-      if (!aiAnalyzerRef.current) {
-        aiAnalyzerRef.current = new AIAnalyzer();
-        await aiAnalyzerRef.current.initialize();
-      }
+      // 上传视频文件
+      const response = await filesAPI.uploadVideo(blob, (progress) => {
+        dispatch(setVideoState({ progress }));
+        setUploadProgress(progress);
+      });
 
-      dispatch(setAIState({ modelLoaded: true }));
+      const file = response.data.data;
+      setUploadedFileId(file.id);
+      
+      // 开始后端AI分析
+      await startBackendAnalysis(file.id);
+    } catch (error: any) {
+      console.error('上传失败:', error);
+      setError(error.response?.data?.message || '视频上传失败，请重试');
+      dispatch(setVideoState({ isProcessing: false }));
+    }
+  }, [dispatch]);
 
-      const videoCapture = new VideoCaptureClass();
-      const frames = await videoCapture.extractFrames(blob, 500);
+  /**
+   * 调用后端AI分析
+   */
+  const startBackendAnalysis = useCallback(async (fileId: string) => {
+    try {
+      setError(null);
+      dispatch(setAIState({ isAnalyzing: true, modelLoaded: true, currentFrame: 0, totalFrames: 100 }));
+      setStep('analyze');
 
-      dispatch(setAIState({ totalFrames: frames.length, currentFrame: 0 }));
+      // 调用后端分析接口
+      const response = await aiAPI.analyzeVideo(fileId, (progress) => {
+        dispatch(setAIState({ currentFrame: progress }));
+        setAnalysisProgress(progress);
+      });
 
-      const problems = await aiAnalyzerRef.current.analyzeVideoFrames(
-        frames,
-        (current, total) => {
-          dispatch(setAIState({ currentFrame: current }));
-          setAnalysisProgress((current / total) * 100);
-        }
-      );
+      const { problems, report_id } = response.data.data;
+      
+      // 获取完整报告
+      const reportResponse = await reportsAPI.getReport(report_id);
+      const fullReport = reportResponse.data.data;
 
       dispatch(addProblems(problems));
+      dispatch(saveReport(fullReport));
       dispatch(setAIState({ isAnalyzing: false }));
-
-      if (currentReport) {
-        const updatedReport = {
-          ...currentReport,
-          problems,
-          summary: ReportGenerator.calculateSummary(problems)
-        };
-        dispatch(saveReport(updatedReport));
-      }
 
       setStep('results');
-    } catch (error) {
+    } catch (error: any) {
       console.error('分析失败:', error);
+      setError(error.response?.data?.message || 'AI分析失败，请重试');
       dispatch(setAIState({ isAnalyzing: false }));
     }
-  }, [dispatch, currentReport]);
+  }, [dispatch]);
 
   /**
    * 视频采集完成
    */
   const handleVideoCaptured = useCallback((blob: Blob) => {
     setVideoBlob(blob);
-    dispatch(setVideoState({ isRecording: false, isProcessing: true }));
-    setStep('analyze');
-    startAnalysis(blob);
-  }, [dispatch, startAnalysis]);
+    uploadVideo(blob);
+  }, [uploadVideo]);
 
   /**
    * 下载报告
    */
-  const handleDownloadReport = () => {
-    if (currentReport) {
+  const handleDownloadReport = async () => {
+    if (currentReport?.id) {
+      try {
+        // 从后端下载报告
+        const response = await reportsAPI.downloadReport(currentReport.id, 'pdf');
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `inspection-report-${currentReport.id}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('下载失败:', error);
+        // 失败时使用前端生成
+        if (currentReport) {
+          ReportGenerator.downloadReport(currentReport, 'html');
+        }
+      }
+    } else if (currentReport) {
+      // 没有报告ID时使用前端生成
       ReportGenerator.downloadReport(currentReport, 'html');
     }
   };
@@ -212,6 +246,36 @@ export default function HomePageClient() {
           </div>
         )}
 
+        {/* 上传页面 */}
+        {step === 'upload' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">上传视频中</h2>
+              <p className="text-gray-600">正在将视频上传到服务器...</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex items-center justify-center mb-4">
+                <Cloud className="w-16 h-16 text-blue-500 animate-pulse" />
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+                <div
+                  className="bg-blue-600 h-4 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="text-center text-sm text-gray-600">
+                上传进度: {uploadProgress}%
+              </p>
+            </div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                <p className="text-red-600">{error}</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* 分析页面 */}
         {step === 'analyze' && (
           <div className="space-y-6">
@@ -226,6 +290,12 @@ export default function HomePageClient() {
               totalFrames={aiState.totalFrames}
               problemsFound={currentReport?.problems.length || 0}
             />
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                <p className="text-red-600">{error}</p>
+              </div>
+            )}
           </div>
         )}
 

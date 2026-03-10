@@ -101,6 +101,61 @@ export interface AIAnalysisState {
   modelLoaded: boolean;
 }
 
+/**
+ * 登录凭证
+ */
+export interface LoginCredentials {
+  account: string;
+  password: string;
+}
+
+/**
+ * 注册数据
+ */
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+  phone?: string;
+}
+
+/**
+ * 用户信息
+ */
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  phone?: string;
+  role: 'user' | 'admin' | 'superadmin';
+  status: 'active' | 'inactive' | 'banned';
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * 令牌响应
+ */
+export interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_at: number;
+  user: User;
+}
+
+/**
+ * 上传文件信息
+ */
+export interface UploadedFile {
+  id: string;
+  filename: string;
+  original_name: string;
+  size: number;
+  mime_type: string;
+  url: string;
+  created_at: string;
+}
+
 // 问题类别配置
 export const PROBLEM_CATEGORIES: Record<ProblemCategory, { label: string; icon: string }> = {
   [ProblemCategory.WALL_DAMAGE]: { label: '墙面损坏', icon: 'wall' },
