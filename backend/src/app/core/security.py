@@ -8,18 +8,22 @@ from src.app.config import settings
 from src.app.core.errors import AuthenticationError
 
 
-# 密码加密上下文
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# 密码加密上下文 - 使用sha256_crypt，无需额外依赖，兼容性好
+pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """验证密码"""
-    return pwd_context.verify(plain_password, hashed_password)
+    """验证密码 - bcrypt只支持前72字节，自动截断"""
+    # bcrypt只处理密码的前72字节，超过部分自动截断
+    truncated_password = plain_password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+    return pwd_context.verify(truncated_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    """生成密码哈希"""
-    return pwd_context.hash(password)
+    """生成密码哈希 - bcrypt只支持前72字节，自动截断"""
+    # bcrypt只处理密码的前72字节，超过部分自动截断
+    truncated_password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+    return pwd_context.hash(truncated_password)
 
 
 def create_access_token(user_id: UUID, expires_delta: Optional[timedelta] = None) -> Tuple[str, datetime]:

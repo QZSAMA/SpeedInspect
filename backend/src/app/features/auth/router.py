@@ -24,7 +24,7 @@ async def register(
     
     return ApiResponse.success(
         data=UserResponse.model_validate(user),
-        message="User registered successfully",
+        message="注册成功",
     )
 
 
@@ -58,7 +58,7 @@ async def login(
             expires_at=access_expire,
             user=UserResponse.model_validate(user),
         ),
-        message="Login successful",
+        message="登录成功",
     )
 
 

@@ -217,6 +217,7 @@ docker-compose up -d
 点击链接可以直接跳转到详细文档：
 - [API接口文档](docs/API.md) - 完整的接口说明和使用示例
 - [数据库设计文档](docs/DATABASE_DESIGN.md) - 详细的表结构设计和设计理念
+- [Git工作流规范](docs/GIT_WORKFLOW.md) - 团队协作的Git开发流程规范
 - [开发指南](docs/DEVELOPMENT.md) - 本地开发环境搭建和开发规范
 - [部署指南](docs/DEPLOYMENT.md) - 生产环境部署教程和配置说明
 - [AI模型训练文档](ai-engine/README.md) - AI模型训练和优化指南

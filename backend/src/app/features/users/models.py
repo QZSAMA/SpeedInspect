@@ -1,7 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean
-from uuid import UUID
-
 from src.app.core.database import Base
 
 
