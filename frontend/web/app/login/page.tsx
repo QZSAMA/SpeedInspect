@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { authAPI } from '@/lib/apiClient';
 import { LoginCredentials } from '@/types';
 import { Eye, EyeOff, CheckCircle } from 'lucide-react';
@@ -120,6 +121,13 @@ export default function LoginPage() {
             >
               {loading ? '登录中...' : '登录'}
             </button>
+          </div>
+
+          <div className="text-center text-sm text-gray-600">
+            还没有账户？
+            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 ml-1">
+              立即注册
+            </Link>
           </div>
         </form>
       </div>
