@@ -23,7 +23,7 @@ class Report(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # 关系
-    user = relationship("User", back_populates="reports")
+    # user = relationship("User", back_populates="reports")
     
     def __repr__(self):
         return f"<Report {self.id}>"

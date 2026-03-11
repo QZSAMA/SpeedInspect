@@ -9,6 +9,7 @@ export function middleware(request: NextRequest) {
   
   // 检查是否是公开路径
   if (publicPaths.some(path => pathname.startsWith(path))) {
+    console.log('Public path, allowing access:', pathname);
     return NextResponse.next();
   }
   
@@ -18,6 +19,7 @@ export function middleware(request: NextRequest) {
   
   // 没有令牌则跳转到登录页
   if (!accessToken) {
+    console.log('No access token, redirecting to login from:', pathname);
     return NextResponse.redirect(new URL('/login', request.url));
   }
   

@@ -70,7 +70,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_router, prefix=f"{api_prefix}/auth", tags=["auth"])
     app.include_router(users_router, prefix=f"{api_prefix}/users", tags=["users"])
     app.include_router(files_router, prefix=f"{api_prefix}/files", tags=["files"])
-    app.include_router(orders_router, prefix=f"{api_prefix}/orders", tags=["orders"])
+    app.include_router(orders_router, prefix=f"{api_prefix}", tags=["orders"])
     app.include_router(reports_router, prefix=f"{api_prefix}/reports", tags=["reports"])
     app.include_router(ai_router, prefix=f"{api_prefix}/ai", tags=["ai"])
     
