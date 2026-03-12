@@ -11,6 +11,22 @@ from src.app.config import settings
 logger = structlog.get_logger()
 
 
+class HTTPSProxyMiddleware(BaseHTTPMiddleware):
+    """HTTPS代理中间件，处理Nginx反向代理后的协议识别"""
+    
+    async def dispatch(self, request: Request, call_next: Callable[[Request], Response]) -> Response:
+        # 检查X-Forwarded-Proto头，确定实际协议
+        forwarded_proto = request.headers.get("X-Forwarded-Proto")
+        if forwarded_proto:
+            # 修改request.url的scheme
+            request._url = request.url.replace(scheme=forwarded_proto)
+            
+            # 注入到state中方便其他地方使用
+            request.state.is_secure = forwarded_proto == "https"
+        
+        return await call_next(request)
+
+
 class RequestIDMiddleware(BaseHTTPMiddleware):
     """请求ID中间件，为每个请求生成唯一ID，方便链路追踪"""
     
@@ -24,6 +40,7 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
             method=request.method,
             path=request.url.path,
             client_ip=request.client.host if request.client else None,
+            protocol=request.url.scheme,
         )
         
         # 注入到request.state

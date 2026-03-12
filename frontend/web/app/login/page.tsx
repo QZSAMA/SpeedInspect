@@ -31,6 +31,11 @@ export default function LoginPage() {
       localStorage.setItem('refresh_token', refresh_token);
       localStorage.setItem('user', JSON.stringify(user));
       
+      // 将令牌存入 Cookie（供中间件验证）
+      const secureFlag = window.location.protocol === 'https:' ? 'Secure;' : '';
+      document.cookie = `access_token=${access_token}; path=/; max-age=86400; SameSite=Lax; ${secureFlag}`;
+      document.cookie = `refresh_token=${refresh_token}; path=/; max-age=2592000; SameSite=Lax; ${secureFlag}`;
+      
       // 跳转到首页
       router.push('/');
     } catch (error: any) {

@@ -5,7 +5,7 @@ import structlog
 from src.app.config import settings
 from src.app.core.database import engine
 from src.app.core.errors import app_error_handler, AppError
-from src.app.middleware import RequestIDMiddleware, cors_middleware
+from src.app.middleware import RequestIDMiddleware, HTTPSProxyMiddleware, cors_middleware
 from src.app.features.auth.router import router as auth_router
 from src.app.features.users.router import router as users_router
 from src.app.features.files.router import router as files_router
@@ -59,6 +59,7 @@ def create_app() -> FastAPI:
     
     # 注册中间件（注意顺序，后注册的先执行）
     app.add_middleware(RequestIDMiddleware)
+    app.add_middleware(HTTPSProxyMiddleware)
     app.add_middleware(*cors_middleware)
     
     # 注册异常处理器
