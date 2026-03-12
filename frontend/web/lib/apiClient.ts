@@ -52,6 +52,11 @@ apiClient.interceptors.response.use(
         // 刷新失败，清除令牌并跳转到登录页
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        // 清除 Cookie
+        const secureFlag = window.location.protocol === 'https:' ? 'Secure;' : '';
+        document.cookie = `access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; ${secureFlag}`;
+        document.cookie = `refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; ${secureFlag}`;
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
