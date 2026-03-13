@@ -18,6 +18,12 @@ dist/
 .DS_Store
 *.pem
 
+# 自签名证书
+certs/server.key
+certs/server.crt
+certs/*.p12
+certs/*.pfx
+
 # Debug
 npm-debug.log*
 yarn-debug.log*
