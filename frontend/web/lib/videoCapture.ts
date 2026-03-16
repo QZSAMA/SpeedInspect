@@ -1,6 +1,8 @@
 /**
  * 视频采集模块
  * 支持移动设备视频录制、防抖处理及清晰度优化
+ * 
+ * 如果需要使用Mock模式，设置环境变量 NEXT_PUBLIC_MOCK_CAMERA=true
  */
 
 export interface VideoCaptureOptions {
@@ -12,9 +14,9 @@ export interface VideoCaptureOptions {
 }
 
 /**
- * 视频采集器类
+ * 真实视频采集器类
  */
-export class VideoCapture {
+export class RealVideoCapture {
   private mediaStream: MediaStream | null = null;
   private mediaRecorder: MediaRecorder | null = null;
   private recordedChunks: Blob[] = [];
@@ -250,3 +252,16 @@ export class VideoCapture {
     return ctx.getImageData(0, 0, this.canvasElement.width, this.canvasElement.height);
   }
 }
+
+// 根据环境变量导出对应实现
+const useMock = process.env.NEXT_PUBLIC_MOCK_CAMERA === 'true';
+
+if (useMock) {
+  console.info('[VideoCapture] Mock mode enabled');
+} else {
+  console.info('[VideoCapture] Real camera mode enabled');
+}
+
+export const VideoCapture = useMock
+  ? require('./videoCapture.mock').VideoCapture
+  : RealVideoCapture;
