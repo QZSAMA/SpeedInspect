@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "speedinspect-backend"
-version = "0.1.0"
+version = "0.2.0"
 description = "SpeedInspect 房屋状态智能识别系统后端"
 authors = [
   { name = "QZ", email = "KELVINCHAO1996@GMAIL.COM" }
