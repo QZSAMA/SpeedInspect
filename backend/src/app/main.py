@@ -1,11 +1,12 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import structlog
 
 from src.app.config import settings
 from src.app.core.database import engine
 from src.app.core.errors import app_error_handler, AppError
-from src.app.middleware import RequestIDMiddleware, HTTPSProxyMiddleware, cors_middleware
+from src.app.middleware import RequestIDMiddleware, HTTPSProxyMiddleware
 from src.app.features.auth.router import router as auth_router
 from src.app.features.users.router import router as users_router
 from src.app.features.files.router import router as files_router
@@ -60,7 +61,17 @@ def create_app() -> FastAPI:
     # 注册中间件（注意顺序，后注册的先执行）
     app.add_middleware(RequestIDMiddleware)
     app.add_middleware(HTTPSProxyMiddleware)
-    app.add_middleware(*cors_middleware)
+    
+    # 直接在这里添加CORS中间件，确保配置生效
+    # 使用配置文件中的CORS origins，支持credentials
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["X-Request-ID", "X-Response-Time"],
+    )
     
     # 注册异常处理器
     app.add_exception_handler(AppError, app_error_handler)
