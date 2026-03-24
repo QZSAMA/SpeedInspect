@@ -6,10 +6,10 @@ from src.app.shared.responses import ApiResponse
 from src.app.features.ai.schemas import AnalyzeVideoRequest, AnalyzeVideoResponse, AnalysisStatusResponse
 from src.app.features.ai.service import AIService
 
-router = APIRouter(prefix="/ai", tags=["ai"])
+router = APIRouter(tags=["ai"])
 
 
-@router.post("/analyze", response_model=AnalyzeVideoResponse, summary="分析视频")
+@router.post("/analyze", response_model=ApiResponse[AnalyzeVideoResponse], summary="分析视频")
 async def analyze_video(
     request: AnalyzeVideoRequest,
     current_user = Depends(get_current_user),
@@ -31,7 +31,7 @@ async def analyze_video(
     )
 
 
-@router.get("/analysis/{task_id}/status", response_model=AnalysisStatusResponse, summary="获取分析状态")
+@router.get("/analysis/{task_id}/status", response_model=ApiResponse[AnalysisStatusResponse], summary="获取分析状态")
 async def get_analysis_status(
     task_id: str,
     current_user = Depends(get_current_user),

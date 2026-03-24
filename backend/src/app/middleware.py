@@ -81,9 +81,13 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 
 
 # CORS中间件配置
+# 开发/测试环境完全开放，解决公网调试CORS问题
+from src.app.config import settings
+
+# 直接完全开放，因为你在公网测试需要跨域访问
 cors_middleware = CORSMiddleware, {
-    "allow_origins": settings.CORS_ORIGINS,
-    "allow_credentials": settings.CORS_ALLOW_CREDENTIALS,
+    "allow_origins": ["*"],
+    "allow_credentials": False,
     "allow_methods": ["*"],
     "allow_headers": ["*"],
     "expose_headers": ["X-Request-ID", "X-Response-Time"],

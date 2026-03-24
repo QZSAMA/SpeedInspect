@@ -68,8 +68,14 @@ class AIService:
             task["current_step"] = "加载视频文件"
             task["progress"] = 10
             
-            # TODO: 从文件存储获取视频文件路径
-            video_path = self.upload_dir / file_id  # 临时路径，实际应根据file_id查询
+            # 使用FileService查找视频文件（实际存储在 uploads/{user_id}/{file_id}.ext）
+            from src.app.features.files.service import FileService
+            file_service = FileService()
+            video_path = await file_service.get_file_path(file_id, user_id)
+            
+            # 如果文件不存在，仍然继续（开发阶段跳过验证，直接生成模拟结果）
+            if not video_path or not video_path.exists():
+                logger.warning("video_file_not_found_continue_simulation", file_id=file_id, user_id=user_id)
             
             # 模拟视频加载
             await asyncio.sleep(2)
@@ -145,8 +151,8 @@ class AIService:
                 "severity": SeverityLevel.MODERATE,
                 "confidence": 0.88,
                 "location": "客厅中部墙面",
-                "repairSuggestion": "使用腻子填充裂缝，打磨平整后重新涂刷",
-                "estimatedCost": 500
+                "repair_suggestion": "使用腻子填充裂缝，打磨平整后重新涂刷",
+                "estimated_cost": 500
             },
             {
                 "category": ProblemCategory.WATER_DAMAGE,
@@ -154,8 +160,8 @@ class AIService:
                 "severity": SeverityLevel.HIGH,
                 "confidence": 0.82,
                 "location": "卫生间上方天花板",
-                "repairSuggestion": "检查屋顶防水，修复漏水点，干燥处理后重新装修",
-                "estimatedCost": 2000
+                "repair_suggestion": "检查屋顶防水，修复漏水点，干燥处理后重新装修",
+                "estimated_cost": 2000
             },
             {
                 "category": ProblemCategory.MOLD,
@@ -163,8 +169,8 @@ class AIService:
                 "severity": SeverityLevel.HIGH,
                 "confidence": 0.79,
                 "location": "卧室墙角",
-                "repairSuggestion": "使用专业除霉剂清洁，改善通风条件",
-                "estimatedCost": 800
+                "repair_suggestion": "使用专业除霉剂清洁，改善通风条件",
+                "estimated_cost": 800
             },
             {
                 "category": ProblemCategory.PLUMBING_ELECTRIC,
@@ -172,8 +178,8 @@ class AIService:
                 "severity": SeverityLevel.CRITICAL,
                 "confidence": 0.80,
                 "location": "厨房墙面",
-                "repairSuggestion": "立即更换新插座，确保用电安全",
-                "estimatedCost": 150
+                "repair_suggestion": "立即更换新插座，确保用电安全",
+                "estimated_cost": 150
             },
             {
                 "category": ProblemCategory.FLOORING,
@@ -181,8 +187,8 @@ class AIService:
                 "severity": SeverityLevel.LOW,
                 "confidence": 0.78,
                 "location": "客厅入口处",
-                "repairSuggestion": "地板打蜡或抛光处理",
-                "estimatedCost": 600
+                "repair_suggestion": "地板打蜡或抛光处理",
+                "estimated_cost": 600
             }
         ]
         
