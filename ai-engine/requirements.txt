@@ -1,0 +1,26 @@
+# 房屋检查AI模型训练 - 依赖文件
+
+# 所有方案通用依赖
+torch>=2.0.0
+torchvision>=0.15.0
+pillow>=10.0.0
+numpy>=1.24.0
+tqdm>=4.65.0
+
+# 方案1: YOLOv8 依赖
+ultralytics>=8.0.0
+opencv-python>=4.8.0
+pyyaml>=6.0
+
+# 方案2: 多阶段CNN 依赖
+timm>=0.9.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# 方案3: CLIP 依赖
+transformers>=4.30.0
+
+# 其他工具
+requests>=2.31.0
+python-dotenv>=1.0.0
