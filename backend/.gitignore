@@ -61,9 +61,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
-# Migrations
-migrations/versions/*.py
-!migrations/versions/__init__.py
+# Database migrations are source code and must be tracked.
 
 # Temporary files
 *.tmp

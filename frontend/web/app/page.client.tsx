@@ -57,33 +57,6 @@ export default function HomePageClient() {
   };
 
   /**
-   * 上传视频到后端
-   */
-  const uploadVideo = useCallback(async (blob: Blob) => {
-    try {
-      setError(null);
-      dispatch(setVideoState({ isRecording: false, isProcessing: true, progress: 0 }));
-      setStep('upload');
-
-      // 上传视频文件
-      const response = await filesAPI.uploadVideo(blob, (progress) => {
-        dispatch(setVideoState({ progress }));
-        setUploadProgress(progress);
-      });
-
-      const file = response.data.data;
-      setUploadedFileId(file.id);
-      
-      // 开始后端AI分析
-      await startBackendAnalysis(file.id);
-    } catch (error: any) {
-      console.error('上传失败:', error);
-      setError(error.response?.data?.message || '视频上传失败，请重试');
-      dispatch(setVideoState({ isProcessing: false }));
-    }
-  }, [dispatch]);
-
-  /**
    * 调用后端AI分析
    */
   const startBackendAnalysis = useCallback(async (fileId: string) => {
@@ -115,6 +88,33 @@ export default function HomePageClient() {
       dispatch(setAIState({ isAnalyzing: false }));
     }
   }, [dispatch]);
+
+  /**
+   * 上传视频到后端
+   */
+  const uploadVideo = useCallback(async (blob: Blob) => {
+    try {
+      setError(null);
+      dispatch(setVideoState({ isRecording: false, isProcessing: true, progress: 0 }));
+      setStep('upload');
+
+      // 上传视频文件
+      const response = await filesAPI.uploadVideo(blob, (progress) => {
+        dispatch(setVideoState({ progress }));
+        setUploadProgress(progress);
+      });
+
+      const file = response.data.data;
+      setUploadedFileId(file.id);
+
+      // 开始后端AI分析
+      await startBackendAnalysis(file.id);
+    } catch (error: any) {
+      console.error('上传失败:', error);
+      setError(error.response?.data?.message || '视频上传失败，请重试');
+      dispatch(setVideoState({ isProcessing: false }));
+    }
+  }, [dispatch, startBackendAnalysis]);
 
   /**
    * 视频采集完成

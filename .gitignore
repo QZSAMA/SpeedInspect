@@ -47,3 +47,15 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
+
+# Local runtime data must never enter source control.
+.worktrees/
+.venv/
+__pycache__/
+*.py[cod]
+*.db
+*.db-shm
+*.db-wal
+backend/uploads/
+.env.*
+!.env.example

@@ -262,6 +262,8 @@ if (useMock) {
   console.info('[VideoCapture] Real camera mode enabled');
 }
 
-export const VideoCapture = useMock
+export type VideoCaptureInstance = RealVideoCapture | import('./videoCapture.mock').VideoCapture;
+
+export const VideoCapture: new () => VideoCaptureInstance = useMock
   ? require('./videoCapture.mock').VideoCapture
   : RealVideoCapture;

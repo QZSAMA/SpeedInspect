@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { VideoCapture as VideoCaptureClass } from '@/lib/videoCapture';
+import type { VideoCaptureInstance } from '@/lib/videoCapture';
 import { Camera, Video, Square, Play, RotateCcw } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -17,7 +18,7 @@ interface VideoCaptureProps {
 export function VideoCapture({ onVideoCaptured, disabled = false }: VideoCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoCaptureRef = useRef<VideoCaptureClass | null>(null);
+  const videoCaptureRef = useRef<VideoCaptureInstance | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isCameraActive, setIsCameraActive] = useState(false);

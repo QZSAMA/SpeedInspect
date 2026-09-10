@@ -2,6 +2,10 @@
 requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
 [project]
 name = "speedinspect-backend"
 version = "0.2.0"
@@ -55,11 +59,11 @@ resolution = "highest"
 
 [tool.ruff]
 line-length = 120
+indent-width = 4
 select = ["E", "F", "I", "UP", "B", "A", "W", "C4", "SIM", "TID", "PYI", "PT"]
 ignore = [
   "E501",  # 行长度由 formatter 处理
   "E203",  # 格式化冲突
-  "W503",  # 格式化冲突
 ]
 exclude = [
   ".git",
@@ -72,7 +76,6 @@ exclude = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-indent-width = 4
 line-ending = "auto"
 
 [tool.mypy]

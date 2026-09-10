@@ -7,7 +7,7 @@ from src.app.shared.responses import ApiResponse, PaginatedResponse
 from src.app.features.reports.schemas import InspectionReportCreate, InspectionReport
 from src.app.features.reports.service import ReportService
 
-router = APIRouter(prefix="/reports", tags=["reports"])
+router = APIRouter(tags=["reports"])
 
 
 @router.get("", response_model=PaginatedResponse[InspectionReport], summary="获取报告列表")

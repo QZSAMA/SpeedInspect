@@ -2,9 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
-  experimental: {
-    outputFileTracingRoot: '../../',
-  },
+  outputFileTracingRoot: require('path').join(__dirname, '../../'),
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
