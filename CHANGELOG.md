@@ -11,7 +11,7 @@
 ### 工程基线
 
 - 新增 `.github/workflows/ci.yml`：在 Node 22 与 Python 3.12 上运行前端 typegen、类型检查、Lint、构建及后端 pytest。
-- 远端 `dev` 已通过非强制快进更新到 `e9c9377`；GitHub 默认分支保持为 `dev`。
+- 远端 `dev` 已通过非强制快进更新到 `bf6e7ab`；GitHub 默认分支保持为 `dev`。
 
 ### 分支与开发流程
 

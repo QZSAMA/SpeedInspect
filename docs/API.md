@@ -1,7 +1,7 @@
 # SpeedInspect API 现状与 Vercel 目标契约
 
 > 更新日期：2026-09-11<br>
-> 审查基线：`dev` @ `e9c9377`，并包含报告路由、文件归属、Vercel ADR 与 CI 基线<br>
+> 审查基线：`dev` @ `bf6e7ab`，并包含报告路由、文件归属、Vercel ADR 与 CI 基线<br>
 > 状态：迁移规格。第一部分记录现有 FastAPI 的真实行为；第二部分是尚未实现的 Next.js/Vercel 目标契约。
 
 本文用于避免把旧接口骨架当成已经可上线的服务。当前接口事实来自 `backend/src/app/main.py`、各 feature router/schema/service、`frontend/web/lib/apiClient.ts` 和生成的 FastAPI OpenAPI；目标契约与 [技术方案](技术方案.md) 一致。代码行为与本文冲突时，当前行为以代码为准，目标行为以通过评审后的契约测试为准。
