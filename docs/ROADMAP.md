@@ -16,6 +16,17 @@
 
 ## Phase 1：Vercel 安全会话与数据库
 
+下一步（建议按此顺序实施）：先建立可回滚的 PostgreSQL schema/migration 和服务端 session 边界，再实现同源认证 Route Handlers，最后接入巡检资源的归属查询。每一步都先写未登录、跨用户和非法状态的失败测试；没有真实数据库和 session 验证前，不接 Blob 或 AI。
+
+首个可审查切片：
+
+1. 选择并锁定 PostgreSQL 访问层与迁移工具，新增 `User`、`Session`、`Inspection`、`AuditEvent` 的初始 migration；使用独立临时数据库跑 forward migration 和 rollback 演练。
+2. 实现服务端 session cookie（HttpOnly、Secure、SameSite=Lax、过期和撤销），Origin/CSRF 校验及共享限流；删除业务代码对 localStorage token 的依赖。
+3. 实现 `POST/GET /api/v1/auth/*` 和 `POST/GET/PATCH/DELETE /api/v1/inspections*` Route Handlers，所有资源查询在 SQL 条件中绑定 session userId；用两个测试账号验证跨用户读写均返回统一错误。
+4. 在 Vercel Preview 连接隔离的托管 PostgreSQL，验证冷启动、刷新、多设备、迁移回退和日志脱敏；通过后再开始 Phase 2 私有 Blob 直传。
+
+本阶段完成的判定：CI 在 Node 22 通过、migration 可重复、会话撤销生效、跨用户集成测试通过、Preview 数据与 Production 隔离，且没有任何模拟 AI/支付路径进入新 API。
+
 交付：
 
 - 将 `frontend/web` 升级为统一 Next.js 页面与 API 项目。

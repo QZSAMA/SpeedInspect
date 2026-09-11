@@ -21,6 +21,7 @@ Agent 开工前先读 [AGENTS.md](AGENTS.md)。本地启动和验证见 [开发�
 - [Vercel 架构决策记录 ADR-0001](docs/adr/0001-vercel-unified-runtime.md)
 - [房屋租赁巡检业务方案](docs/房屋租赁巡检完整方案.md)
 - [路线图与验收标准](docs/ROADMAP.md)
+- [Phase 1 执行清单](docs/PHASE1_TASKS.md)
 - [Vercel 部署指南](docs/DEPLOYMENT.md)
 - [API 现状与目标契约](docs/API.md)
 - [Agent 维护手册](docs/AGENT_RUNBOOK.md)
