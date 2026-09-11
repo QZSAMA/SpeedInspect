@@ -4,6 +4,10 @@
 
 ## [Unreleased] - 2026-09-10
 
+### 架构决策
+
+- 新增 [ADR-0001](docs/adr/0001-vercel-unified-runtime.md)，明确单个 Next.js/Vercel 项目、托管 PostgreSQL、私有 Blob、服务端会话和可恢复分析任务的迁移边界与回滚要求。
+
 ### 分支与开发流程
 
 - 将远端默认分支和后续日常开发基线统一为 `dev`。

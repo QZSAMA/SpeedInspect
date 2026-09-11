@@ -1,6 +1,6 @@
 # SpeedInspect 项目状态
 
-> 最近审查：2026-09-10<br>
+> 最近审查：2026-09-11<br>
 > 仓库：`https://github.com/QZSAMA/SpeedInspect`<br>
 > 审查起始基线：`dev` @ `ed1887ccae7690efe7615bbff59f377ca3a52cc1`
 > 状态口径：以 Git 历史、锁文件、当前代码和实际执行命令为准；历史方案中的规划不计为已实现。
@@ -132,6 +132,8 @@ GitHub API 复核显示 `dev` 和 `main` 目前都没有分支保护规则。当
 尚未验证：真实移动设备、真实 PostgreSQL、私有 Blob、外部 AI API、Vercel Preview/Production、支付网关、备份恢复、负载与并发、真实房屋数据上的模型质量。生产发布必须由用户明确批准。
 
 ## 已接受的目标架构
+
+架构决策已记录在 [ADR-0001：统一到 Vercel 的应用运行架构](adr/0001-vercel-unified-runtime.md)，基线为 `dev` @ `243a19d`。ADR 固化了单 Next.js 项目、托管 PostgreSQL、私有 Blob、服务端会话和持久分析任务的边界；具体供应商和长任务产品仍需在 Preview 验证后选择。
 
 用户已允许由 Vercel 承载应用与接口，同时使用托管数据服务和外部 AI API。后续实现应收敛为：
 
