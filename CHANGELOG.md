@@ -2,11 +2,16 @@
 
 本文件记录 SpeedInspect 的重要变更。项目尚未发布稳定生产版本；`Unreleased` 记录已进入 `dev`、但尚未晋级生产发布的变更。
 
-## [Unreleased] - 2026-09-10
+## [Unreleased] - 2026-09-11
 
 ### 架构决策
 
 - 新增 [ADR-0001](docs/adr/0001-vercel-unified-runtime.md)，明确单个 Next.js/Vercel 项目、托管 PostgreSQL、私有 Blob、服务端会话和可恢复分析任务的迁移边界与回滚要求。
+
+### 工程基线
+
+- 新增 `.github/workflows/ci.yml`：在 Node 22 与 Python 3.12 上运行前端 typegen、类型检查、Lint、构建及后端 pytest。
+- 远端 `dev` 已通过非强制快进更新到 `e9c9377`；GitHub 默认分支保持为 `dev`。
 
 ### 分支与开发流程
 
