@@ -6,7 +6,7 @@
 
 1. 执行 `git status --short --branch`，保护所有已有改动。
 2. 执行 `git fetch origin --prune`，确认 `dev`、远端默认分支和基线 SHA。
-3. 阅读 `PROJECT_STATUS.md`、`技术方案.md`、`ROADMAP.md`、最近 CHANGELOG 和相关 ADR（当前为 `docs/adr/0001-vercel-unified-runtime.md`）。
+3. 阅读 `PROJECT_STATUS.md`、`技术方案.md`、`ROADMAP.md`、`DEVELOPMENT.md`、最近 CHANGELOG 和相关 ADR（当前为 `docs/adr/0001-vercel-unified-runtime.md`）。
 4. 把任务写成：目标、范围、非目标、验收标准、风险、依赖、回滚方式。
 5. 运行受影响区域的基线检查；若已有失败，记录原始输出，避免误归因。
 

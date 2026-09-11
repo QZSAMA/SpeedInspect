@@ -23,7 +23,7 @@ npm ci
 npm run dev
 ```
 
-当前页面请求独立 FastAPI，本地另开后端后设置 `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1`。生产目标是同源 Next.js API；不要把 localhost rewrite 当作 Vercel 配置。
+当前页面默认调用同源 `/api/v1`；在迁移期间如需对照独立 FastAPI，可在未跟踪的 `.env.local` 设置 `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1`。生产目标是同源 Next.js Route Handlers；不要把 localhost rewrite 当作 Vercel 配置。
 
 验证：
 
@@ -35,7 +35,7 @@ npm run build
 npm audit --omit=dev
 ```
 
-当前 Jest 没有用例，`npm test` 失败是已知基线，不能用 `--passWithNoTests` 冒充通过。新增高风险行为时先写能复现问题的测试。
+当前 Jest 覆盖 Proxy 认证边界和 API base URL（2 个套件、7 个用例）；仍需为浏览器登录、Cookie 刷新和主巡检链路增加测试。不能用 `--passWithNoTests` 冒充通过。新增高风险行为时先写能复现问题的测试。
 
 ## 旧 FastAPI 后端
 

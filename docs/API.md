@@ -1,7 +1,7 @@
 # SpeedInspect API 现状与 Vercel 目标契约
 
 > 更新日期：2026-09-11<br>
-> 审查基线：`dev` @ `bf6e7ab`，并包含报告路由、文件归属、Vercel ADR 与 CI 基线<br>
+> 审查基线：`dev` @ `757998b`，并包含报告路由、文件归属、Vercel ADR、CI 基线和 Next 16 前端迁移<br>
 > 状态：迁移规格。第一部分记录现有 FastAPI 的真实行为；第二部分是尚未实现的 Next.js/Vercel 目标契约。
 
 本文用于避免把旧接口骨架当成已经可上线的服务。当前接口事实来自 `backend/src/app/main.py`、各 feature router/schema/service、`frontend/web/lib/apiClient.ts` 和生成的 FastAPI OpenAPI；目标契约与 [技术方案](技术方案.md) 一致。代码行为与本文冲突时，当前行为以代码为准，目标行为以通过评审后的契约测试为准。
@@ -112,7 +112,7 @@ problem:
 
 | 位置 | 当前不匹配 | 用户影响 |
 | --- | --- | --- |
-| API 地址 | 浏览器默认使用绝对地址 `http://localhost:8000/api/v1`；Next rewrite 只代理同源 `/api/*`。 | 未设置环境变量的部署会请求访问者自己的 localhost，Vercel rewrite 也不会生效。 |
+| API 地址 | 浏览器默认使用同源 `/api/v1`；迁移期间可显式设置 `NEXT_PUBLIC_API_URL` 对照旧 FastAPI。 | 同源 Route Handlers 尚未实现；生产不能依赖访问者的 localhost，也不能把旧 FastAPI rewrite 当作 Vercel API。 |
 | 注册 | Web 发送 `username`，API 只接受 `nickname`；Web 允许 6 位密码，API 至少 8 位；空字符串 phone 也可能触发 pattern 校验。 | 用户名被忽略，6–7 位密码或空 phone 请求得到 422。 |
 | 刷新令牌 | Web 发送 JSON `{refresh_token}`，FastAPI 将 `refresh_token` 定义为 query 参数。 | access token 过期后的自动刷新得到 422，然后被迫退出。 |
 | 登录会话 | Web 把 JWT 写入 localStorage 和脚本可读 Cookie；middleware 只检查 Cookie 是否存在，不验证签名或过期。 | XSS 可读取 token，伪造任意非空 Cookie 也能通过页面门禁；真正 API 鉴权仍由 FastAPI Bearer 完成。 |

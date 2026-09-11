@@ -4,14 +4,21 @@
 
 ## [Unreleased] - 2026-09-11
 
+### 本轮基线迁移（Next.js 16）
+
+- 将 `frontend/web` 升级到 Next.js `16.3.4`，保留 React `18.3.1` 以缩小迁移范围；同步 ESLint `9.39.5`、`eslint-config-next` Flat Config 和 `eslint .` CLI。
+- 按 Next.js 16 约定将 `middleware.ts` 迁移为 `proxy.ts`，并修复 Bearer header 的空白匹配；新增 Proxy 认证边界与 API 地址 Jest 回归（2 个套件、7 个用例）。
+- 移除旧的 `localhost:8000` Next rewrite；未配置公开 API 地址时，浏览器默认调用同源 `/api/v1`。同源 Route Handlers 尚未实现，不能据此宣称 Vercel API 已可用。
+- CI 在 Node `22.x` 中加入前端 Jest；当前工作树的生产依赖审计 `npm audit --omit=dev` 为 0 个漏洞。完整开发依赖审计仍需单独分级处理。
+
 ### 架构决策
 
 - 新增 [ADR-0001](docs/adr/0001-vercel-unified-runtime.md)，明确单个 Next.js/Vercel 项目、托管 PostgreSQL、私有 Blob、服务端会话和可恢复分析任务的迁移边界与回滚要求。
 
 ### 工程基线
 
-- 新增 `.github/workflows/ci.yml`：在 Node 22 与 Python 3.12 上运行前端 typegen、类型检查、Lint、构建及后端 pytest。
-- 远端 `dev` 已通过非强制快进更新到 `bf6e7ab`；GitHub 默认分支保持为 `dev`。
+- 新增 `.github/workflows/ci.yml`：在 Node 22 与 Python 3.12 上运行前端 typegen、类型检查、Jest、Lint、构建及后端 pytest。
+- 本轮工作树基于远端 `dev` 的 `757998b`；GitHub 默认分支保持为 `dev`。推送后的远端 SHA 以实际 GitHub Actions 运行记录为准。
 
 ### 分支与开发流程
 
@@ -33,7 +40,7 @@
 - 为真实与模拟摄像头实现增加统一实例类型，修复 TypeScript 将运行时类值用作类型的问题。
 - 将 Next.js `outputFileTracingRoot` 改成基于项目目录解析的绝对路径。
 - 调整 Ruff 配置位置并移除不受当前版本支持的规则，使检查器能够运行。
-- 升级 Next.js 至 15.5.24、React 至 18.3.1，并同步直接依赖与锁文件中的安全更新。
+- 上一阶段曾升级 Next.js 至 15.5.24、React 至 18.3.1；本轮已继续升级到 Next.js 16.3.4。
 
 ### 测试
 
@@ -60,10 +67,9 @@
 - 文件上传仍整段读入内存并写本地磁盘，缺少 MIME、大小和内容校验；尚未迁移到私有 Blob 直传。
 - PDF 导出、持久分享、OCR、状态比对、Agent 对话和真实支付尚未实现；当前支付接口会模拟成功，不能用于生产。
 - 报告/订单列表的分页响应和总数查询不正确；报告更新/删除还会把 Pydantic schema 当作 ORM 实体，数据库 CRUD 需要集成测试与修复。
-- 前端没有测试用例，`npm test -- --runInBand` 因未发现测试退出 1，且构建生成的 `.next/standalone` 会产生 Jest package-name collision warning。
-- `npm audit --omit=dev` 仍有 1 个 high 和 1 个 moderate 漏洞；`next@15.5.24` 间接固定 `postcss@8.4.31`，审计的自动修复要求迁移到 Next 16.3.4，并同步替换已弃用的 `next lint` 工作流。
+- 当时前端没有测试用例、生产审计仍有漏洞，且旧 `next lint`/localhost rewrite 尚未迁移；这些问题已在本轮基线迁移中分别处理，但浏览器主链路、同源 Route Handlers 和 Vercel 运行时仍未完成。
 - Ruff 虽已能运行，但 `uv run ruff check .` 仍报告 470 个遗留问题（397 个可自动修复）。
-- 当前独立 FastAPI、本地磁盘和 Docker/Nginx 部署形态尚未迁移为单个 Vercel Next.js 项目；`/api` 还会 rewrite 到 `localhost:8000`，生产部署仍为 No-Go。
+- 当前独立 FastAPI、本地磁盘和 Docker/Nginx 部署形态尚未迁移为单个 Vercel Next.js 项目，生产部署仍为 No-Go。
 
 ## [0.2.0] - 2026-03-14
 

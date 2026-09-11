@@ -1,6 +1,6 @@
 # Vercel 部署与上线指南
 
-更新日期：2026-09-10。本文是目标配置，当前代码还不能作为完整生产服务部署。
+更新日期：2026-09-11。本文是目标配置，当前代码还不能作为完整生产服务部署。
 
 ## 官方能力核对
 
@@ -20,7 +20,7 @@
 5. 接入托管 PostgreSQL 和私有 Blob。Preview 与 Production 必须使用独立数据库、存储和凭据，数据库区域靠近函数。
 6. Preview 开启访问保护，并在目标手机网络上测试。HTTPS 由 Vercel 提供，不部署 Nginx 或自签名证书。
 
-当前 `next.config.js` 会把 `/api` rewrite 到 `http://localhost:8000`，`apiClient.ts` 的默认地址也指向该旧 FastAPI；Vercel 没有这个常驻进程。因此不要通过设置环境变量或增加函数时长试图上线当前原型，必须先迁移为同源 Next.js API。
+当前 `next.config.js` 已移除指向 `http://localhost:8000` 的 rewrite，`apiClient.ts` 默认使用同源 `/api/v1`；但对应的 Next.js Route Handlers 尚未实现，Vercel 上的登录、注册和巡检 API 仍不可用。因此不要仅凭构建成功上线当前原型，必须先完成同源 API、会话、数据库和任务迁移。
 
 ## 环境变量
 
@@ -31,7 +31,7 @@
 | AUTH_SECRET | 服务端 | 目标会话；选定认证库后核对准确名称 |
 | AI_API_KEY / AI_MODEL | 服务端 | 目标 AI 适配层 |
 | APP_ORIGIN | 服务端 | 可信站点和 CSRF 校验 |
-| NEXT_PUBLIC_API_URL | 公开 | 旧前端后端地址；当前缺省会指向 localhost，生产不可用 |
+| NEXT_PUBLIC_API_URL | 公开 | 迁移期可选的旧 FastAPI 地址；留空时使用同源 `/api/v1`，生产应留空 |
 | NEXT_PUBLIC_MOCK_CAMERA | 公开 | 仅开发演示使用 |
 
 目标变量尚未全部被代码消费。仅配置变量不代表服务已经接通。密钥存于 Vercel 加密配置，不提交 `.env`；Preview 不得复用生产数据或账单凭据。
@@ -44,7 +44,7 @@
 
 ## 上线前门槛
 
-- 清除直接依赖中的 critical/high 漏洞，锁定版本；当前 `npm audit --omit=dev` 仍有 1 个 high 和 1 个 moderate，Next 16 升级需单独验证；typecheck、build 和必要测试通过。
+- 清除直接依赖中的 critical/high 漏洞，锁定版本；当前锁文件的生产树 `npm audit --omit=dev` 为 0 个漏洞，完整开发依赖审计另行分级；typecheck、build 和必要测试通过，并在 Node 22/Vercel Preview 复验。
 - 完成数据库迁移、认证、Blob 授权、任务恢复和真实报告导出。
 - 使用两个账号验证跨用户读取/删除拒绝，测试过期会话、CSRF、上传超限和异常模型响应。
 - 真机验证 Safari/Chrome 摄像头权限、录制格式、照片替代入口、弱网重试和刷新恢复。

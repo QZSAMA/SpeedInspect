@@ -32,7 +32,7 @@ Agent 开工前先读 [AGENTS.md](AGENTS.md)。本地启动和验证见 [开发�
 
 | 目录 | 当前用途 |
 |---|---|
-| `frontend/web` | Next.js 15.5 / React 18.3 原型；目标统一页面和 API 入口 |
+| `frontend/web` | Next.js 16.3 / React 18.3 原型；目标统一页面和 API 入口 |
 | `backend` | FastAPI / SQLAlchemy 旧后端；迁移前用于开发和契约对照 |
 | `ai-engine` | YOLO/CNN/CLIP 离线研究脚本；未接入在线分析 |
 | `docs` | 当前事实、目标方案、路线图和维护规范 |

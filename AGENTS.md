@@ -16,7 +16,7 @@
 
 ## 运行架构
 
-- 当前代码：`frontend/web` Next.js 15.5 / React 18.3；`backend` FastAPI / SQLAlchemy；`ai-engine` 离线研究脚本。版本真值取锁文件。
+- 当前代码：`frontend/web` Next.js 16.3 / React 18.3；`backend` FastAPI / SQLAlchemy；`ai-engine` 离线研究脚本。版本真值取锁文件。
 - 目标：单个 Vercel Next.js 项目承载页面和 API；托管 PostgreSQL、私有 Blob、外部 AI API。用户已允许托管服务。后端迁移尚未完成。
 - 禁止将 SQLite、函数本地磁盘、进程内字典作为生产持久化；不得在请求返回后用无人管理的任务承担关键业务。
 - 大媒体由浏览器鉴权后直传私有 Blob。Vercel API 只传元数据和受限图片批次。不能将原视频转发进函数绕过大小限制。
@@ -35,7 +35,7 @@
 ## 实现与验证
 
 - 先复现后修复；权限/状态/持久化修复必须有回归测试。测试应验证行为与失败路径，不复制实现。
-- Python 回归：`cd backend` 后 `uv sync --frozen --extra dev`、`uv run pytest`。TypeScript：`cd frontend/web` 后 `npm ci`、`npm run lint`、`npx tsc --noEmit`、`npm run build`。前端目前无 Jest 用例，不能把 `--passWithNoTests` 当通过。
+- Python 回归：`cd backend` 后 `uv sync --frozen --extra dev`、`uv run pytest`。TypeScript：`cd frontend/web` 后 `npm ci`、`npm test -- --runInBand`、`npm run lint`、`npx next typegen`、`npx tsc --noEmit`、`npm run build`。前端 Jest 只覆盖当前高风险边界，不能把 `--passWithNoTests` 当通过。
 - 对修改范围运行必要检查；旧仓库 lint/依赖漏洞见状态文档，不将“构建成功”解释为“可以上线”。不关闭类型检查、安全检查来获得绿色结果。
 - API 边界统一 schema，日期用 ISO 字符串，字段命名只在明确 adapter 中转换。业务逻辑不塞进页面，服务端模块不得被客户端 import。
 - 不给不存在的测试覆盖率、模型准确率或功能进度编造数字。记录实际命令、退出码、环境和限制。

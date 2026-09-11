@@ -6,9 +6,14 @@
 import axios from 'axios';
 import { HouseProblem, InspectionReport, User, LoginCredentials, RegisterData, UploadedFile } from '@/types';
 
+export function getApiBaseUrl(configuredUrl: string | undefined): string {
+  const normalizedUrl = configuredUrl?.trim();
+  return normalizedUrl || '/api/v1';
+}
+
 // 创建axios实例
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
+  baseURL: getApiBaseUrl(process.env.NEXT_PUBLIC_API_URL),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -57,7 +62,7 @@ apiClient.interceptors.response.use(
         const secureFlag = window.location.protocol === 'https:' ? 'Secure;' : '';
         document.cookie = `access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; ${secureFlag}`;
         document.cookie = `refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; ${secureFlag}`;
-        window.location.href = '/login';
+        window.location.replace(new URL('/login', window.location.origin).toString());
         return Promise.reject(refreshError);
       }
     }

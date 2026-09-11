@@ -7,7 +7,7 @@
 
 ## 背景
 
-当前仓库同时包含 `frontend/web`（Next.js）和独立的 FastAPI 后端。FastAPI 通过本地 SQLite、`backend/uploads` 和进程内 `asyncio.create_task` 保存状态；这些实现适合本地原型，却不能保证 Vercel Function 在冷启动、并发和响应结束后仍能访问同一状态。浏览器还默认请求 `localhost:8000`，媒体上传会把完整文件读进函数内存，AI 结果是随机模拟值。
+当前仓库同时包含 `frontend/web`（Next.js）和独立的 FastAPI 后端。FastAPI 通过本地 SQLite、`backend/uploads` 和进程内 `asyncio.create_task` 保存状态；这些实现适合本地原型，却不能保证 Vercel Function 在冷启动、并发和响应结束后仍能访问同一状态。迁移前浏览器默认请求 `localhost:8000`；当前前端已改为同源 `/api/v1`，但媒体上传仍会把完整文件读进函数内存，AI 结果是随机模拟值。
 
 目标是只运营一个 Vercel 项目，同时保留 Python 研究代码作为离线工具。架构必须支持多用户归属隔离、刷新后恢复任务、私有媒体和可审计的人工复核报告。
 
