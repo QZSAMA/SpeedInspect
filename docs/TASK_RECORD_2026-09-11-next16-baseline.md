@@ -41,6 +41,7 @@
 | `cd backend; uv sync --frozen --extra dev` | 退出码 0 |
 | `uv run pytest` | 退出码 0；10 个用例通过，3 个 Pydantic 弃用警告；coverage 55% 只代表当前用例触达 |
 | `git diff --check` | 退出码 0 |
+| GitHub Actions CI（`0469fca`） | Node 22 前端与 Python 3.12 后端 job 均通过；运行：`https://github.com/QZSAMA/SpeedInspect/actions/runs/34573992721` |
 
 ## 未解决风险与限制
 
@@ -57,7 +58,6 @@
 
 ## 交接下一步
 
-1. 在 Node 22.x 或 GitHub Actions 上复跑本记录中的前端命令并保存运行链接。
-2. 为浏览器登录、Cookie 刷新和主巡检流程增加 Playwright 验收。
-3. 按 `docs/ROADMAP.md` Phase 1 实现服务端会话、PostgreSQL schema/migration 与同源 Route Handlers。
-4. 在 Preview 完成权限隔离、Blob 直传、任务恢复、AI 错误路径和移动端验收后，才讨论 Production；任何生产部署仍需用户明确批准。
+1. 为浏览器登录、Cookie 刷新和主巡检流程增加 Playwright 验收。
+2. 按 `docs/ROADMAP.md` Phase 1 实现服务端会话、PostgreSQL schema/migration 与同源 Route Handlers。
+3. 在 Preview 完成权限隔离、Blob 直传、任务恢复、AI 错误路径和移动端验收后，才讨论 Production；任何生产部署仍需用户明确批准。

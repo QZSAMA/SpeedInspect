@@ -68,7 +68,7 @@ GitHub API 复核显示 `dev` 和 `main` 目前都没有分支保护规则。当
 
 ## 本轮已复现并处理的问题
 
-以下修复已在当前 `dev` 工作树完成本轮综合验证；提交后以新的远端 SHA 为准：
+以下修复已随 `47ee448` 推送到 `dev`，后续 Phase 1 清单为 `0469fca`；两次提交的 GitHub Actions 均通过：
 
 | 问题 | 原始表现 | 当前处理 | 验证状态 |
 | --- | --- | --- | --- |
@@ -79,7 +79,7 @@ GitHub API 复核显示 `dev` 和 `main` 目前都没有分支保护规则。当
 | Ruff 配置不可用 | `indent-width` 位于不接受该键的 formatter 配置段，并包含当前版本不支持的规则项 | 移动配置并移除无效项 | Ruff 已能启动；`uv run ruff check .` 仍报告 470 个遗留问题，其中 397 个可自动修复，本轮未批量改写业务代码 |
 | 运行时数据进入 Git | 仓库跟踪了一个 SQLite 文件和 5 个 WebM 文件 | 从当前索引移除并补充忽略规则；迁移脚本恢复为应跟踪源码 | 删除项和忽略规则已纳入本次提交 |
 | 前端环境变量示例误导 | 示例曾列出 MongoDB URI、JWT 与公开客户端加密 key，容易被误作可保密配置 | 仅保留公开的本地 API 地址与显式关闭的 mock 摄像头开关 | 目标会话、数据库、Blob 与 AI 密钥仍待迁入服务端 Next.js API |
-| Next.js 16 升级边界 | Next 16 已移除 `next lint`，旧 `middleware.ts` 约定已弃用 | 升级到 Next 16.3.4/ESLint 9，改用 `eslint .`、Flat Config 和 `proxy.ts`；移除 localhost rewrite，默认 API 为同源 `/api/v1` | 同源 Route Handlers、服务端会话和真实 API 尚未实现；需在 Node 22 与 Vercel Preview 复验 |
+| Next.js 16 升级边界 | Next 16 已移除 `next lint`，旧 `middleware.ts` 约定已弃用 | 升级到 Next 16.3.4/ESLint 9，改用 `eslint .`、Flat Config 和 `proxy.ts`；移除 localhost rewrite，默认 API 为同源 `/api/v1` | Node 22 CI 已通过；同源 Route Handlers、服务端会话和真实 API 尚未实现，仍需 Vercel Preview 复验 |
 | 前端高风险回归 | 认证门禁和 API 地址此前没有自动化覆盖 | 新增 Jest 配置及 2 个测试套件（当前 7 个用例），CI 已执行 `npm test -- --runInBand` | 尚需浏览器级登录、Cookie 刷新和主巡检链路测试 |
 
 ## 仍未修复的阻断项与风险
@@ -90,7 +90,7 @@ GitHub API 复核显示 `dev` 和 `main` 目前都没有分支保护规则。当
 2. **运行模型与 Vercel 不兼容。** FastAPI、本地上传目录、请求返回后的 `asyncio.create_task`、Docker/Nginx 不是已接受的单 Vercel 目标架构；当前同源 API 入口尚无对应 Route Handlers，旧 FastAPI 仍不能作为 Vercel 常驻进程。需要迁移到 Next.js Route Handlers/Server Actions、持久任务表及外部 AI API；耗时工作要使用受 Vercel 支持的队列/工作流或可重入轮询步骤。
 3. **媒体持久化不成立。** Vercel 函数文件系统是临时的，且当前上传会把完整视频读入函数内存。浏览器应在服务端鉴权后直传私有 Blob，API 只保存元数据，并向 AI 发送受限图片批次或签名读取地址，不能转发整段原视频绕过限制。
 4. **身份会话不安全。** 浏览器脚本可读取访问令牌，middleware 不验证签名/过期，缺少完整的服务端会话、CSRF 防护和共享限流。密码哈希前还会静默截断到 72 字节，必须改成明确的现代密码策略及迁移方案。
-5. **依赖审计需分层看待。** 当前锁文件将生产树的 `baseline-browser-mapping` 固定在 `2.11.22`，`npm audit --omit=dev` 已为 0 vulnerabilities；完整审计仍可能报告开发工具链的传递依赖问题，应单独升级并避免 `npm audit fix --force`。Next 16 的升级已完成本地迁移，但仍需 Node 22 与 Vercel Preview 复验。
+5. **依赖审计需分层看待。** 当前锁文件将生产树的 `baseline-browser-mapping` 固定在 `2.11.22`，`npm audit --omit=dev` 已为 0 vulnerabilities；完整审计仍可能报告开发工具链的传递依赖问题，应单独升级并避免 `npm audit fix --force`。Next 16 升级已在 Node 22 CI 通过，但仍需 Vercel Preview 复验。
 6. **真实 AI 能力不存在。** 当前随机结果可能被界面描述成 AI 检测。生产必须删除或严格隔离模拟路径，并把输出定位为“待人工复核的问题建议”；不得声称判断结构安全、责任归属、法律结论或未经验证的准确率。
 7. **数据库迁移和云环境未验收。** 目前没有可审查的完整生产 migration chain，也没有对托管 PostgreSQL 的连接、并发、备份、恢复和归属隔离测试。
 
@@ -113,7 +113,7 @@ GitHub API 复核显示 `dev` 和 `main` 目前都没有分支保护规则。当
 - 在真实设备和目标浏览器验证拍摄权限、前后摄像头、录制格式、弱网上传和无障碍体验。
 - 完成报告在线预览及安全导出；随后再排 OCR、历史比对、Agent 对话和收费能力。
 - 为前端补充少量高价值行为测试和主链路浏览器测试；当前已有 Proxy/API 地址边界测试，不能把它们当作完整端到端覆盖。
-- 建立受支持 Node 22.x 的 CI 基线；CI 已固定 Node 22.x，但本机审查环境为 Node 25.8.2，不能作为支持证据。
+- 维护受支持 Node 22.x 的 CI 基线；`0469fca` 对应的前后端 CI 已通过。本机审查环境为 Node 25.8.2，只作为补充验证。
 
 ## 验证记录
 
@@ -124,10 +124,10 @@ GitHub API 复核显示 `dev` 和 `main` 目前都没有分支保护规则。当
 | Git 分支图与远端引用 | 通过 | 通过 | 本轮基线 `dev` 为 `757998b`；Trae 为 `ed1887c` 且其 6 个提交已包含在 dev；`main` 为 `ebe4cc7` 且无独有提交；`origin/HEAD -> origin/dev` |
 | 后端既有测试 | 0 个测试 | 新增 10 个回归测试，10 passed | `ed1887c` 没有受 Git 跟踪的后端测试，不应把 pytest 配置等同于有测试 |
 | 新增安全/路由回归 | 红阶段 7 failed / 3 passed | 10 passed | 3 个 Pydantic 弃用 warning；显示 55% coverage 仅是当前新增用例的运行结果，不是完整项目覆盖率承诺 |
-| `npm run lint` | 退出码 0，1 个 warning | 退出码 0 | 已补齐 `useCallback` 依赖；检查环境为 Node 25.8.2，不等同于受支持 Node 20/22 的验证 |
-| `npx tsc --noEmit` | 失败：摄像头类被当作类型；另曾出现隐式 `any` | 退出码 0 | 当前工作区通过；仍需在 Node 22.x/Vercel Preview 复验 |
-| `npm run build` | 失败于 TypeScript 错误 | 退出码 0 | 当前工作区通过；Node 25.8.2 超出 `package.json` 的 `<23` 上限 |
-| `npm test -- --runInBand` | 退出码 1，未发现测试 | 退出码 0：2 个测试套件、7 个用例通过 | 当前覆盖 Proxy 认证边界与 API base URL；尚无浏览器级主链路测试 |
+| `npm run lint` | 退出码 0，1 个 warning | 退出码 0 | 本地通过；GitHub Actions Node 22 前端 job 也通过 |
+| `npx tsc --noEmit` | 失败：摄像头类被当作类型；另曾出现隐式 `any` | 退出码 0 | 本地通过；GitHub Actions Node 22 前端 job 也通过；仍需 Preview 复验 |
+| `npm run build` | 失败于 TypeScript 错误 | 退出码 0 | 本地 Next 16.3.4/Turbopack 通过；GitHub Actions Node 22 前端 job 也通过 |
+| `npm test -- --runInBand` | 退出码 1，未发现测试 | 退出码 0：2 个测试套件、7 个用例通过 | 本地和 GitHub Actions Node 22 均通过；尚无浏览器级主链路测试 |
 | `npm audit --omit=dev --json` | 20 个漏洞（升级前） | 退出码 0：生产依赖 0 个漏洞 | 完整 audit 的开发依赖问题仍需单独分级处理；不使用 `--force` |
 | Ruff | 配置错误，无法正常检查 | 退出码 1，470 个遗留问题 | 397 个标记为可自动修复；需分批处理并审查行为变化 |
 
@@ -152,7 +152,7 @@ Vercel 服务端 ──受限证据批次──> 外部多模态 AI API
 
 ## 下一步执行顺序
 
-1. 在 Node 22.x 建立可重复的 CI 基线，补充浏览器级前端行为测试，并在 CI/Vercel Preview 复验 Next 16 升级。
+1. 保持 Node 22.x CI 基线，补充浏览器级前端行为测试，并在 Vercel Preview 复验 Next 16 升级。
 2. 用 ADR 固化 Vercel 全栈结构、托管 PostgreSQL、私有 Blob、会话方案、任务执行方案和外部 AI provider；然后迁移最小纵向链路。
 3. 先交付“安全会话 → 直传一组证据图片 → 持久任务 → 外部 AI 结构化建议 → 人工复核 → 持久报告”闭环，再扩展视频、OCR、比对和收费。
 4. 在 Vercel Preview 完成数据库迁移、权限、失败恢复、移动设备和成本边界验收后，再请求生产部署批准。

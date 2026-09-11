@@ -4,12 +4,12 @@
 
 ## Phase 0：建立可信工程基线
 
-当前进度：CI 已加入并在 Node 22/Python 3.12 上运行前端与后端必需检查；Vercel 目标边界已由 ADR-0001 固化。Next 16.3.4、ESLint 9 Flat Config、`proxy.ts` 和 Jest 边界测试已进入当前工作树；生产树 `npm audit --omit=dev` 为 0 个漏洞。Phase 0 仍未关闭，原因是尚未在 Node 22/Vercel Preview 完成复验，且缺少浏览器级主链路测试。
+当前进度：CI 已加入并在 Node 22/Python 3.12 上运行前端与后端必需检查；`0469fca` 的两个 CI job 均通过。Vercel 目标边界已由 ADR-0001 固化。Next 16.3.4、ESLint 9 Flat Config、`proxy.ts` 和 Jest 边界测试已进入 `dev`；生产树 `npm audit --omit=dev` 为 0 个漏洞。Phase 0 仍未关闭，原因是尚未完成 Vercel Preview 和浏览器级主链路测试。
 
 完成条件：
 
 - 固定 Node 22.x、Python 版本和锁文件；建立 CI，使 `npm ci`、lint、typecheck、build、后端测试在受支持运行时可重复。
-- 清除运行时依赖的 critical/high 漏洞，记录无法立即修复的传递依赖与缓解措施；当前生产树审计为 0 个漏洞，开发依赖审计另行分级；Next 16 升级和替换 `next lint` 已完成迁移，待 Node 22/Preview 回归。
+- 清除运行时依赖的 critical/high 漏洞，记录无法立即修复的传递依赖与缓解措施；当前生产树审计为 0 个漏洞，开发依赖审计另行分级；Next 16 升级和替换 `next lint` 已完成迁移并通过 Node 22 CI，待 Preview 回归。
 - 修复当前文件越权、报告路径和摄像头类型问题；停止跟踪数据库与用户媒体。
 - 建立 `AGENTS.md`、项目状态、部署、API、开发、运维和变更记录。
 - 生产 UI 不显示随机 AI 和模拟支付成功。开发 mock 必须由显式环境变量开启，并有醒目标识。

@@ -9,7 +9,7 @@
 - 将 `frontend/web` 升级到 Next.js `16.3.4`，保留 React `18.3.1` 以缩小迁移范围；同步 ESLint `9.39.5`、`eslint-config-next` Flat Config 和 `eslint .` CLI。
 - 按 Next.js 16 约定将 `middleware.ts` 迁移为 `proxy.ts`，并修复 Bearer header 的空白匹配；新增 Proxy 认证边界与 API 地址 Jest 回归（2 个套件、7 个用例）。
 - 移除旧的 `localhost:8000` Next rewrite；未配置公开 API 地址时，浏览器默认调用同源 `/api/v1`。同源 Route Handlers 尚未实现，不能据此宣称 Vercel API 已可用。
-- CI 在 Node `22.x` 中加入前端 Jest；当前工作树的生产依赖审计 `npm audit --omit=dev` 为 0 个漏洞。完整开发依赖审计仍需单独分级处理。
+- CI 在 Node `22.x` 中加入前端 Jest；`47ee448` 与 Phase 1 文档提交 `0469fca` 的 GitHub Actions 均通过。生产依赖审计 `npm audit --omit=dev` 为 0 个漏洞，完整开发依赖审计仍需单独分级处理。
 
 ### 架构决策
 
